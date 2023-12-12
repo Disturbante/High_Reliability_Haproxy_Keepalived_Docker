@@ -18,6 +18,7 @@
         2.  [Project Setup](#orga443fcf)
         3.  [Testing Failover and Load Balancing](#org5e02eb3)
     6.  [Customization](#org37daf01)
+2. [Risposte Del Test](#Risposte)
 
 
 
@@ -168,6 +169,51 @@ Test the system's resilience by simulating the loss of a web server or HAProxy i
 
 
 <a id="org37daf01"></a>
+
+# Risposte
+
+Possiamo osservare che all'interno della sezione __"services"__ vengono istaziati quattro servizi i primi due sono i __"web_server"__ (Nginx), prendono il loro codice dal loro relativo dockerfile che a sua volta punta al file __"nginx.conf"__   
+
+
+Risposta 1:
+
+_Implementare la cache su webserver o sul load balancer dipende molto dall'infrastruttura di rete però utilizzerei come primo metro di scelta la potenza di calcolo, in base a chi ne ha di più implementerei la funzione di caching o sul load balancer o sul webserver. Altra metrica sarebbe basato su come è organizzato il sito che serviamo infatti se abbiamo un'alta presenza di pagine statiche affiderei il caching al load balancer invece se abbiamo diverse pagine dinamiche implementiamo il caching verso i webserver._
+
+Risposta 2:
+
+_Le componenti che avrei conteinerizzato sono i 2 webserver per fattori di sicurezza infatti avrei un ambiente isolato, velocità di building data dal docker, gestione semplificata delle dipendeze e delle configurazioni in quanto con un file docker posso impostare il tutto_
+
+Risposta 3:
+
+_Nell'architettura implementata assegnerei il virtual IP ai load balancer, in quanto gestirà il traffico e il tutto verrà ridistributo ai vari webservers inoltre in caso che uno dei Haproxy muoia abbiamo a disposizione il rimanente che gestirà il resto_
+
+Risposta 4:
+
+_Le vulnerabilità che possiamo riscontrare e le relative mitigazioni sono:_
+
+- Request smuggling = tenere sempre aggiornati alle versioni più recenti i proxy
+
+- Accesso non autorizzato = implementare gli accessi tramite SSH (con fail2ban) e whitlistare gli ip che possono connettersi 
+
+- XSS, SQLI, ecc... = un WAF da mettere davanti i load balancer che filtri le richieste a livello 7
+
+- Attacchi DDoS = firewall che filtri il traffico di rete
+
+- Modifica dei filesystem tramite accessi non autorizzati = implementare una soluzione open-source come tripwire che permette di controllare se vi sono cambiamenti nei filesystems
+
+Risposta 5:
+
+_Le metriche che monitorerei per valutare le prestazioni dei load balancer sono:_
+
+1) Connessioni attive: capire quante connessioni attive ci sono e come sono ditribuite tra i vari webserver
+
+2) Latenza: il tempo impiegato per servire la pagina richiesta
+
+3) Connessioni fallite: capire quante connessioni falliscono e specialmente i motivi per cui falliscono
+
+4) Risorse utilizzate: valutare quante risorve vengono consumate da essi
+
+5) Throughput: vedere la capacità massima del load balancer ci permette di capire il carico massimo che può sopportare
 
 ## Customization
 
