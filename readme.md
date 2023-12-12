@@ -34,6 +34,7 @@ This project showcases a load balancing and failover implementation using `Docke
 ## Description
 
 The purpose of the project is to realize the following network:
+
 ![img](./pics/topologia.png)
 
 The project comprises several Docker containerized services:
